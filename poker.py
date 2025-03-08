@@ -168,7 +168,7 @@ def parse_card(card_str):
 
 
 @mcp.tool()
-async def analyse_cards(my_cards_input: str, community_input: str, opponent_input: str ) -> str:
+async def analyse_poker_cards(my_cards_input: str, community_input: str, opponent_input: str ) -> str:
     """
     Suggests poker actions based on the current game state.
     This function evaluates a poker hand and provides strategic recommendations by calculating 
@@ -226,6 +226,47 @@ async def analyse_cards(my_cards_input: str, community_input: str, opponent_inpu
         "suggested_action": suggested_action,
         "best_hand": my_best
     }
+
+
+@mcp.tool()
+async def get_best_nim_move(piles):
+    """
+    Determine the best move in a Nim game using the nim-sum strategy.
+    
+    Args:
+        piles: A list of integers representing the number of objects in each pile.
+        
+    Returns:
+        A tuple (pile_index, objects_to_remove) representing the best move.
+        If no winning move exists, returns a safe move or the first valid move.
+    """
+    # Calculate the nim-sum
+    nim_sum = 0
+    for pile in piles:
+        nim_sum ^= pile
+    
+    # If nim_sum is 0, we're in a losing position
+    # Make a safe move (take 1 from the largest pile)
+    if nim_sum == 0:
+        largest_pile = max(range(len(piles)), key=lambda i: piles[i])
+        return largest_pile, 1
+    
+    # Otherwise, we can make a winning move
+    for i, pile_size in enumerate(piles):
+        if pile_size > 0:
+            # Calculate how many to remove to make nim_sum 0
+            target_size = pile_size ^ nim_sum
+            if target_size < pile_size:
+                return i, pile_size - target_size
+    
+    # Fallback (should not reach here if piles has non-zero elements)
+    for i, pile_size in enumerate(piles):
+        if pile_size > 0:
+            return i, 1
+    
+    return 0, 0  # No valid moves (all piles empty)
+
+
 
 if __name__ == "__main__":
     mcp.run(transport='stdio')
