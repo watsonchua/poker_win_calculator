@@ -242,7 +242,7 @@ async def get_best_nim_move(piles):
     """
     # Calculate the nim-sum
     nim_sum = 0
-    piles = [int(p.strip()) for p in piles]
+    piles = [int(p.strip()) if type(p) == str else p for p in piles]
     for pile in piles:
         nim_sum ^= pile
     
